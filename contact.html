@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Us | StudioCorp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --card: #13161e;
+      --border: #22263a;
+      --accent: #c8a96e;
+      --accent-dim: rgba(200,169,110,.12);
+      --text: #eef0f6;
+      --text-soft: #8a90a8;
+      --text-muted: #50566e;
+      --input-bg: #0d0f14;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 1.4rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--text);
+      letter-spacing: -.01em;
+    }
+    .logo span { color: var(--accent); }
+    nav a {
+      text-decoration: none;
+      color: var(--text-soft);
+      font-size: .85rem;
+      font-weight: 500;
+      margin-left: 2rem;
+      transition: color .2s;
+    }
+    nav a:hover, nav a.active { color: var(--accent); }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 5rem 1.5rem 3rem;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 300px;
+      background: radial-gradient(ellipse, rgba(200,169,110,.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-tag {
+      display: inline-block;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: .35rem .9rem;
+      border-radius: 20px;
+      margin-bottom: 1.4rem;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -.02em;
+      margin-bottom: 1rem;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+    .hero p {
+      color: var(--text-soft);
+      font-size: .95rem;
+      font-weight: 300;
+      max-width: 420px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 5rem;
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    /* ── LEFT INFO ── */
+    .info-panel h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+    .info-panel p {
+      color: var(--text-soft);
+      font-size: .875rem;
+      line-height: 1.75;
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+    .contact-item {
+      display: flex;
+      align-items: flex-start;
+      gap: .9rem;
+      margin-bottom: 1.4rem;
+    }
+    .contact-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(200,169,110,.2);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .contact-icon svg { color: var(--accent); }
+    .contact-label {
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: .2rem;
+    }
+    .contact-value {
+      font-size: .875rem;
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2rem 0;
+    }
+
+    .response-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--accent-dim);
+      border: 1px solid rgba(200,169,110,.2);
+      border-radius: 8px;
+      padding: .6rem 1rem;
+      font-size: .8rem;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .dot {
+      width: 7px; height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .3; }
+    }
+
+    /* ── FORM ── */
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+    }
+    .form-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: .4rem;
+    }
+    .form-card .subtitle {
+      font-size: .8rem;
+      color: var(--text-muted);
+      margin-bottom: 1.8rem;
+      font-weight: 300;
+    }
+
+    .field-group { margin-bottom: 1.1rem; }
+    .field-group label {
+      display: block;
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      margin-bottom: .4rem;
+    }
+    .field-group label .req { color: var(--accent); }
+
+    input, textarea, select {
+      width: 100%;
+      padding: .7rem 1rem;
+      background: var(--input-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: .875rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-muted); }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200,169,110,.1);
+    }
+    select option { background: var(--card); }
+    textarea { resize: vertical; min-height: 110px; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .9rem;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: .9rem;
+      background: var(--accent);
+      color: #0d0f14;
+      border: none;
+      border-radius: 9px;
+      font-family: 'Inter', sans-serif;
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: .6rem;
+      letter-spacing: .02em;
+      transition: opacity .2s, transform .1s;
+    }
+    .submit-btn:hover { opacity: .88; }
+    .submit-btn:active { transform: scale(.99); }
+
+    .privacy {
+      text-align: center;
+      font-size: .72rem;
+      color: var(--text-muted);
+      margin-top: .9rem;
+    }
+
+    /* success */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .check {
+      width: 56px; height: 56px;
+      background: var(--accent-dim);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.2rem;
+      border: 1px solid rgba(200,169,110,.3);
+    }
+    .success-screen h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      margin-bottom: .5rem;
+    }
+    .success-screen p { font-size: .85rem; color: var(--text-soft); }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: auto;
+      border-top: 1px solid var(--border);
+      padding: 1.2rem 2.5rem;
+      text-align: center;
+      font-size: .75rem;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 700px) {
+      .container { grid-template-columns: 1fr; gap: 2rem; }
+      nav { display: none; }
+      .field-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Studio<span>Corp</span></div>
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">Work</a>
+    <a href="#">Services</a>
+    <a href="#" class="active">Contact</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <div class="hero-tag">Get In Touch</div>
+  <h1>Let's build something<br><em>remarkable</em> together</h1>
+  <p>Have a project in mind? Fill out the form and I'll get back to you within 24 hours.</p>
+</div>
+
+<div class="container">
+
+  <!-- LEFT -->
+  <div class="info-panel">
+    <h2>Contact Information</h2>
+    <p>Whether you need a full website, a single landing page, or a custom form — I'm here to help bring your vision to life.</p>
+
+    <div class="contact-item">
+      <div class="contact-icon">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="contact-label">Email</div>
+        <div class="contact-value">hello@studiocorp.com</div>
+      </div>
+    </div>
+
+    <div class="contact-item">
+      <div class="contact-icon">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498A1 1 0 0121 15.72V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="contact-label">Phone</div>
+        <div class="contact-value">Available on request</div>
+      </div>
+    </div>
+
+
+
+    <div class="divider"></div>
+
+    <div class="response-badge">
+      <div class="dot"></div>
+      Typically responds within 24 hours
+    </div>
+  </div>
+
+  <!-- RIGHT: FORM -->
+  <div class="form-card">
+    <h3>Send a Message</h3>
+    <p class="subtitle">All fields marked * are required</p>
+
+    <div id="contact-form">
+      <div class="field-row">
+        <div class="field-group">
+          <label>First Name <span class="req">*</span></label>
+          <input type="text" id="f-first" placeholder="Jane"/>
+        </div>
+        <div class="field-group">
+          <label>Last Name <span class="req">*</span></label>
+          <input type="text" id="f-last" placeholder="Smith"/>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Email Address <span class="req">*</span></label>
+        <input type="email" id="f-email" placeholder="jane@company.com"/>
+      </div>
+
+      <div class="field-group">
+        <label>Phone Number</label>
+        <input type="tel" id="f-phone" placeholder="+1 (555) 000-0000"/>
+      </div>
+
+      <div class="field-group">
+        <label>Service Needed</label>
+        <select id="f-service">
+          <option value="" disabled selected>Select a service…</option>
+          <option>Full Website Build</option>
+          <option>Landing Page</option>
+          <option>Contact / Quote Form</option>
+          <option>Website Redesign</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Budget Range</label>
+        <select id="f-budget">
+          <option value="" disabled selected>Select a range…</option>
+          <option>Under $1,000</option>
+          <option>$1,000 – $5,000</option>
+          <option>$5,000 – $10,000</option>
+          <option>$10,000+</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Message <span class="req">*</span></label>
+        <textarea id="f-message" placeholder="Tell me about your project — what you need, your timeline, any specific requirements…"></textarea>
+      </div>
+
+      <button class="submit-btn" onclick="handleSubmit()">Send Message →</button>
+
+      <p class="privacy">🔒 Your information is kept private and never shared.</p>
+    </div>
+
+    <div class="success-screen" id="success">
+      <div class="check">
+        <svg width="26" height="26" fill="none" viewBox="0 0 24 24">
+          <path stroke="#c8a96e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <h3>Message Sent!</h3>
+      <p>Thanks for reaching out. I'll be in touch within 24 hours.</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  © 2026 StudioCorp · All rights reserved
+</footer>
+
+<script>
+  function handleSubmit() {
+    const first   = document.getElementById('f-first').value.trim();
+    const last    = document.getElementById('f-last').value.trim();
+    const email   = document.getElementById('f-email').value.trim();
+    const message = document.getElementById('f-message').value.trim();
+
+    if (!first || !last || !email || !message) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+    document.getElementById('contact-form').style.display = 'none';
+    document.getElementById('success').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>

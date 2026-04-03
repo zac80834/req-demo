@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Request For Quote</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0f1117;
+      --ink-soft: #4a4f5e;
+      --ink-muted: #8a909f;
+      --paper: #fafaf8;
+      --white: #ffffff;
+      --accent: #1a56e8;
+      --accent-light: #e8eeff;
+      --accent-hover: #1341c4;
+      --border: #e2e4ea;
+      --border-focus: #1a56e8;
+      --success: #12864e;
+      --success-bg: #edfaf4;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.06);
+      --shadow-lg: 0 8px 40px rgba(0,0,0,.12);
+    }
+
+    html { font-size: 16px; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 62px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.35rem;
+      color: var(--ink);
+      letter-spacing: -.02em;
+    }
+    .logo span { color: var(--accent); }
+    nav a {
+      text-decoration: none;
+      color: var(--ink-soft);
+      font-size: .875rem;
+      font-weight: 500;
+      margin-left: 1.75rem;
+      transition: color .2s;
+    }
+    nav a:hover { color: var(--accent); }
+    nav a.active { color: var(--accent); }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb {
+      padding: .75rem 2rem;
+      font-size: .8rem;
+      color: var(--ink-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--white);
+    }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 .4rem; }
+
+    /* ── MAIN LAYOUT ── */
+    .page {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    /* ── PRODUCT PANEL (left) ── */
+    .product-panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .product-header {
+      background: var(--ink);
+      color: var(--white);
+      padding: 1.4rem 1.6rem;
+    }
+    .product-header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.55rem;
+      letter-spacing: -.02em;
+      line-height: 1.2;
+    }
+    .product-header p {
+      font-size: .8rem;
+      color: rgba(255,255,255,.55);
+      margin-top: .35rem;
+      font-weight: 300;
+    }
+    .product-image {
+      background: #f4f4f2;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 180px;
+    }
+    .product-image svg { opacity: .18; }
+    .product-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .product-table tr {
+      border-bottom: 1px solid var(--border);
+    }
+    .product-table tr:last-child { border-bottom: none; }
+    .product-table td {
+      padding: .75rem 1.4rem;
+      font-size: .875rem;
+    }
+    .product-table td:first-child {
+      font-weight: 600;
+      color: var(--ink-soft);
+      width: 40%;
+      background: #f9f9f7;
+    }
+    .product-table td:last-child {
+      color: var(--ink);
+    }
+    .badge {
+      display: inline-block;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: .75rem;
+      font-weight: 600;
+      padding: .2rem .6rem;
+      border-radius: 20px;
+    }
+
+    /* ── RFQ FORM (right) ── */
+    .rfq-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: sticky;
+      top: 78px;
+    }
+    .rfq-card-header {
+      background: var(--accent);
+      color: var(--white);
+      padding: 1.1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+    .rfq-card-header svg { flex-shrink: 0; }
+    .rfq-card-header h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -.01em;
+    }
+    .rfq-card-header p {
+      font-size: .75rem;
+      opacity: .8;
+      margin-top: .1rem;
+    }
+    .rfq-body { padding: 1.4rem 1.5rem; }
+
+    .autofill-notice {
+      background: var(--success-bg);
+      border: 1px solid #a3e6cb;
+      border-radius: 7px;
+      padding: .65rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      font-size: .8rem;
+      color: var(--success);
+      font-weight: 500;
+      margin-bottom: 1.2rem;
+      animation: slideIn .4s ease;
+    }
+    .autofill-notice.hidden { display: none; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .field-group { margin-bottom: 1rem; }
+    .field-group label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+      margin-bottom: .35rem;
+      letter-spacing: .01em;
+      text-transform: uppercase;
+    }
+    .field-group label .req { color: var(--accent); margin-left: 2px; }
+
+    input, textarea, select {
+      width: 100%;
+      padding: .65rem .9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      color: var(--ink);
+      background: var(--white);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(26,86,232,.12);
+    }
+    input.prefilled {
+      background: #f5f7ff;
+      border-color: #b3c5f7;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: .85rem;
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: .5rem;
+      letter-spacing: .01em;
+      transition: background .2s, transform .1s, box-shadow .2s;
+      box-shadow: 0 2px 8px rgba(26,86,232,.25);
+    }
+    .submit-btn:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 4px 16px rgba(26,86,232,.35);
+    }
+    .submit-btn:active { transform: scale(.99); }
+
+    .privacy-note {
+      text-align: center;
+      font-size: .75rem;
+      color: var(--ink-muted);
+      margin-top: .8rem;
+    }
+    .privacy-note svg { vertical-align: middle; margin-right: 3px; }
+
+    /* success state */
+    .success-screen {
+      display: none;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .success-screen .check-circle {
+      width: 60px; height: 60px;
+      background: var(--success-bg);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+    }
+    .success-screen h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.3rem;
+      margin-bottom: .5rem;
+    }
+    .success-screen p { font-size: .875rem; color: var(--ink-soft); }
+
+    /* ── DEMO LINKS ── */
+    .demo-bar {
+      background: #1a1f2e;
+      color: rgba(255,255,255,.7);
+      padding: .6rem 2rem;
+      font-size: .78rem;
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .demo-bar strong { color: #fff; }
+    .demo-bar a {
+      color: #7eb3ff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .demo-bar a:hover { text-decoration: underline; }
+
+    @media (max-width: 720px) {
+      .page { grid-template-columns: 1fr; }
+      .rfq-card { position: static; }
+      nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- DEMO BAR showing URL parameter feature -->
+<div class="demo-bar">
+  <strong>🔗 URL Autofill Demo:</strong>
+  Try these links to see fields auto-populate:
+  <a href="?part=MAX1718EEI-TG069&qty=500&name=John+Smith&company=Acme+Corp&email=john@acme.com">Pre-filled Example</a>
+  <a href="?part=STM32F407VGT6&qty=1000">Part + Qty only</a>
+  <a href="?">Clear / Blank Form</a>
+</div>
+
+<header>
+  <div class="logo">Parts<span>Direct</span></div>
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">Products</a>
+    <a href="#" class="active">Request Quote</a>
+    <a href="#">Contact</a>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="#">Home</a><span>›</span>
+  <a href="#">Products</a><span>›</span>
+  <span id="bc-part">Request For Quote</span>
+</div>
+
+<div class="page">
+
+  <!-- LEFT: Product Info -->
+  <div class="product-panel">
+    <div class="product-header">
+      <h1 id="product-title">Request For Quote</h1>
+      <p id="product-sub">Fill in the form to receive a fast, accurate quote</p>
+    </div>
+    <div class="product-image">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+        <rect x="10" y="20" width="60" height="40" rx="4" fill="#0f1117"/>
+        <rect x="18" y="28" width="44" height="24" rx="2" fill="#2a2f3e"/>
+        <rect x="22" y="32" width="36" height="3" rx="1" fill="#4a5568"/>
+        <rect x="22" y="38" width="24" height="3" rx="1" fill="#4a5568"/>
+        <rect x="22" y="44" width="30" height="3" rx="1" fill="#4a5568"/>
+        <rect x="30" y="60" width="20" height="4" rx="1" fill="#0f1117"/>
+        <rect x="20" y="64" width="40" height="2" rx="1" fill="#0f1117"/>
+      </svg>
+    </div>
+    <table class="product-table">
+      <tr>
+        <td>Part Number</td>
+        <td id="info-part"><em style="color:var(--ink-muted)">Enter part number →</em></td>
+      </tr>
+      <tr>
+        <td>Quantity Needed</td>
+        <td id="info-qty"><em style="color:var(--ink-muted)">Enter quantity →</em></td>
+      </tr>
+      <tr>
+        <td>Status</td>
+        <td><span class="badge">Accepting Quotes</span></td>
+      </tr>
+      <tr>
+        <td>Response Time</td>
+        <td>Within 24 hours</td>
+      </tr>
+      <tr>
+        <td>Shipping</td>
+        <td>Worldwide</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- RIGHT: RFQ Form -->
+  <div class="rfq-card">
+    <div class="rfq-card-header">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+        <path stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/>
+      </svg>
+      <div>
+        <h2>Quick Request For Quote</h2>
+        <p>Fast response · No obligation</p>
+      </div>
+    </div>
+
+    <div class="rfq-body">
+      <div class="autofill-notice hidden" id="autofill-notice">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+          <path stroke="#12864e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Fields auto-filled from link parameters
+      </div>
+
+      <div id="rfq-form">
+        <div class="field-group">
+          <label>Part Number <span class="req">*</span></label>
+          <input type="text" id="f-part" placeholder="e.g. MAX1718EEI-TG069" autocomplete="off"/>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label>Quantity <span class="req">*</span></label>
+            <input type="number" id="f-qty" placeholder="e.g. 500" min="1"/>
+          </div>
+          <div class="field-group">
+            <label>Target Price</label>
+            <input type="text" id="f-price" placeholder="e.g. $3.50/ea"/>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label>First Name <span class="req">*</span></label>
+            <input type="text" id="f-name" placeholder="Jane"/>
+          </div>
+          <div class="field-group">
+            <label>Last Name</label>
+            <input type="text" id="f-lastname" placeholder="Smith"/>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Company</label>
+          <input type="text" id="f-company" placeholder="Your Company Name"/>
+        </div>
+
+        <div class="field-group">
+          <label>Email <span class="req">*</span></label>
+          <input type="email" id="f-email" placeholder="you@company.com"/>
+        </div>
+
+        <div class="field-group">
+          <label>Phone</label>
+          <input type="tel" id="f-phone" placeholder="+1 (555) 000-0000"/>
+        </div>
+
+        <div class="field-group">
+          <label>Additional Notes</label>
+          <textarea id="f-notes" placeholder="Delivery timeline, spec requirements, or any other details…"></textarea>
+        </div>
+
+        <button class="submit-btn" onclick="handleSubmit()">
+          Submit Quote Request →
+        </button>
+
+        <p class="privacy-note">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Your information is never shared or sold.
+        </p>
+      </div>
+
+      <!-- Success message (hidden until submit) -->
+      <div class="success-screen" id="success-screen">
+        <div class="check-circle">
+          <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+            <path stroke="#12864e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h3>Quote Request Sent!</h3>
+        <p>We'll respond to your request within 24 hours. Check your inbox for a confirmation.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── URL PARAMETER AUTOFILL ──────────────────────────────────────────────────
+  // Maps URL query params to form field IDs
+  const paramMap = {
+    part:     'f-part',
+    qty:      'f-qty',
+    price:    'f-price',
+    name:     'f-name',
+    lastname: 'f-lastname',
+    company:  'f-company',
+    email:    'f-email',
+    phone:    'f-phone',
+    notes:    'f-notes',
+  };
+
+  function prefillFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    let filled = false;
+
+    for (const [param, fieldId] of Object.entries(paramMap)) {
+      const value = params.get(param);
+      if (value) {
+        const el = document.getElementById(fieldId);
+        if (el) {
+          el.value = value;
+          el.classList.add('prefilled');
+          filled = true;
+        }
+      }
+    }
+
+    // Show autofill notice if any fields were populated
+    if (filled) {
+      document.getElementById('autofill-notice').classList.remove('hidden');
+    }
+
+    // Update product panel display
+    const partVal = params.get('part');
+    const qtyVal  = params.get('qty');
+    if (partVal) {
+      document.getElementById('info-part').textContent    = partVal;
+      document.getElementById('product-title').textContent = partVal;
+      document.getElementById('product-sub').textContent  = 'Submit your quote request below';
+      document.getElementById('bc-part').textContent       = partVal;
+    }
+    if (qtyVal) {
+      document.getElementById('info-qty').textContent = Number(qtyVal).toLocaleString() + ' pcs';
+    }
+  }
+
+  // Live-sync part & qty fields to the info panel as user types
+  document.getElementById('f-part').addEventListener('input', function() {
+    const v = this.value.trim();
+    document.getElementById('info-part').textContent =
+      v || '—';
+  });
+  document.getElementById('f-qty').addEventListener('input', function() {
+    const v = parseInt(this.value);
+    document.getElementById('info-qty').textContent =
+      (v > 0) ? v.toLocaleString() + ' pcs' : '—';
+  });
+
+  // ── FORM SUBMIT ─────────────────────────────────────────────────────────────
+  function handleSubmit() {
+    const part  = document.getElementById('f-part').value.trim();
+    const qty   = document.getElementById('f-qty').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    const name  = document.getElementById('f-name').value.trim();
+
+    if (!part || !qty || !email || !name) {
+      alert('Please fill in all required fields (Part Number, Quantity, First Name, Email).');
+      return;
+    }
+    document.getElementById('rfq-form').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+  }
+
+  // Run on page load
+  prefillFromURL();
+</script>
+</body>
+</html>

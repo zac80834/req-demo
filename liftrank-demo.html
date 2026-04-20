@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>LiftRank — Demo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:#0a0a0f;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#f0f0f5;display:flex;justify-content:center;align-items:center;}
+.phone{width:100%;max-width:430px;height:100vh;max-height:900px;display:flex;flex-direction:column;background:#0a0a0f;position:relative;overflow:hidden;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#0f0f1a;border-bottom:0.5px solid rgba(255,255,255,0.08);flex-shrink:0;}
+.logo{font-size:20px;font-weight:800;letter-spacing:-0.04em;}
+.logo span{color:#7f77dd;}
+.top-right{display:flex;align-items:center;gap:8px;}
+.xp-pill{font-size:12px;color:#ef9f27;font-weight:700;background:rgba(239,159,39,0.12);padding:5px 10px;border-radius:20px;}
+.streak-pill{display:flex;align-items:center;gap:4px;background:rgba(127,119,221,0.15);border:0.5px solid rgba(127,119,221,0.3);border-radius:20px;padding:5px 10px;font-size:12px;color:#afa9ec;font-weight:700;}
+.dot{width:6px;height:6px;border-radius:50%;background:#7f77dd;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+.page{display:none;padding:16px;}
+.page.active{display:block;}
+.bottom-nav{display:flex;background:#0f0f1a;border-top:0.5px solid rgba(255,255,255,0.08);flex-shrink:0;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 12px;cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.3);gap:3px;transition:color .2s;min-height:58px;}
+.nav-btn.active{color:#afa9ec;}
+.nav-btn svg{width:22px;height:22px;}
+.nav-btn span{font-size:10px;font-weight:600;}
+.card{background:#13131f;border:0.5px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-bottom:10px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
+.stat-card{background:#13131f;border:0.5px solid rgba(255,255,255,0.08);border-radius:14px;padding:13px;}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+.stat-val{font-size:26px;font-weight:800;}
+.stat-val.pu{color:#afa9ec;}.stat-val.gr{color:#97c459;}.stat-val.am{color:#ef9f27;}
+.stat-sub{font-size:10px;color:rgba(255,255,255,0.25);margin-top:2px;}
+.sec-title{font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.pb-row{margin-bottom:9px;}
+.pb-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
+.pb-name{color:rgba(255,255,255,0.55);}
+.pb-val{color:#afa9ec;font-weight:600;}
+.pb-wrap{background:rgba(255,255,255,0.07);border-radius:4px;height:6px;}
+.pb-fill{height:6px;border-radius:4px;background:#7f77dd;}
+.pb-fill.gr{background:#639922;}.pb-fill.am{background:#ba7517;}
+.btn-pri{background:#534ab7;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-top:10px;transition:background .2s;min-height:50px;}
+.btn-pri:active{background:#7f77dd;}
+.btn-out{background:transparent;color:rgba(255,255,255,0.4);border:0.5px solid rgba(255,255,255,0.12);border-radius:12px;padding:11px;font-size:13px;cursor:pointer;width:100%;margin-top:8px;min-height:44px;}
+.btn-out:active{border-color:rgba(127,119,221,.5);color:#afa9ec;}
+.overload-box{background:rgba(127,119,221,0.1);border:0.5px solid rgba(127,119,221,0.25);border-radius:10px;padding:10px 12px;margin-top:9px;font-size:12px;color:#afa9ec;line-height:1.5;}
+.set-grid{display:grid;grid-template-columns:28px 1fr 1fr 1fr;gap:6px;align-items:center;margin-bottom:8px;}
+.set-num{font-size:12px;color:rgba(255,255,255,0.25);text-align:center;}
+.set-lbl{font-size:10px;color:rgba(255,255,255,0.25);text-align:center;margin-bottom:3px;}
+.set-inp{background:#0a0a0f;border:0.5px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px 4px;font-size:14px;color:#f0f0f5;text-align:center;width:100%;outline:none;min-height:40px;}
+.set-inp:focus{border-color:rgba(127,119,221,.5);}
+.badge-sm{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:700;}
+.b-p{background:rgba(127,119,221,.15);color:#afa9ec;}.b-t{background:rgba(29,158,117,.15);color:#5dcaa5;}.b-a{background:rgba(186,117,23,.15);color:#ef9f27;}.b-c{background:rgba(153,60,29,.15);color:#f0997b;}
+.pr-badge{display:inline-flex;align-items:center;background:rgba(239,159,39,.15);border:0.5px solid rgba(186,117,23,.3);border-radius:20px;padding:2px 9px;font-size:11px;color:#ef9f27;font-weight:700;margin-left:6px;}
+.avatar-sm{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.av-p{background:rgba(127,119,221,.2);color:#afa9ec;}.av-t{background:rgba(29,158,117,.2);color:#5dcaa5;}.av-a{background:rgba(239,159,39,.2);color:#ef9f27;}.av-c{background:rgba(216,90,48,.2);color:#f0997b;}
+.friend-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid rgba(255,255,255,.05);}
+.friend-row:last-child{border-bottom:none;}
+.fr-name{font-size:13px;font-weight:700;color:#f0f0f5;}
+.fr-act{font-size:12px;color:rgba(255,255,255,.35);margin-top:2px;line-height:1.4;}
+.fr-time{font-size:10px;color:rgba(255,255,255,.2);flex-shrink:0;margin-top:2px;}
+.react-row{display:flex;gap:6px;margin-top:8px;}
+.rbtn{background:rgba(255,255,255,.05);border:0.5px solid rgba(255,255,255,.09);border-radius:20px;padding:6px 12px;font-size:12px;cursor:pointer;color:rgba(255,255,255,.4);min-height:34px;transition:all .15s;}
+.rbtn.active{background:rgba(127,119,221,.18);border-color:rgba(127,119,221,.4);color:#afa9ec;}
+.search-inp{width:100%;background:#13131f;border:0.5px solid rgba(255,255,255,.1);border-radius:12px;padding:13px 14px;color:#f0f0f5;font-size:14px;outline:none;margin-bottom:12px;min-height:48px;}
+.ex-card{background:#13131f;border:0.5px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;margin-bottom:9px;cursor:pointer;}
+.ex-card:active{border-color:rgba(127,119,221,.5);}
+.ex-name{font-size:14px;font-weight:700;color:#f0f0f5;}
+.ex-muscle{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px;}
+.ex-stats{display:flex;gap:12px;margin-top:9px;padding-top:9px;border-top:0.5px solid rgba(255,255,255,.05);}
+.ex-stat{font-size:11px;color:rgba(255,255,255,.3);}
+.ex-stat strong{color:#f0f0f5;font-weight:600;display:block;font-size:12px;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;display:none;align-items:flex-end;max-width:430px;margin:0 auto;}
+.modal-overlay.open{display:flex;}
+.modal{background:#0f0f1a;border-radius:22px 22px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding:20px 16px 36px;}
+.modal-handle{width:36px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin:0 auto 18px;}
+.modal-title{font-size:19px;font-weight:800;margin-bottom:4px;}
+.modal-sub{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:16px;}
+.mannequin-wrap{display:flex;gap:16px;justify-content:center;margin-bottom:16px;}
+.mannequin-container{display:flex;flex-direction:column;align-items:center;}
+.mannequin-label{font-size:10px;color:rgba(255,255,255,.3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em;font-weight:600;}
+.muscle-key{background:#13131f;border-radius:12px;padding:12px 14px;margin-bottom:14px;}
+.key-title{font-size:11px;color:rgba(255,255,255,.35);margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;}
+.key-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;color:rgba(255,255,255,.6);}
+.key-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.info-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.info-chip{background:#13131f;border:0.5px solid rgba(255,255,255,.08);border-radius:9px;padding:9px 12px;font-size:12px;color:rgba(255,255,255,.5);flex:1;min-width:80px;text-align:center;}
+.info-chip strong{display:block;font-size:13px;color:#f0f0f5;font-weight:700;margin-bottom:2px;}
+.tips-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px;margin-top:12px;}
+.tip-item{font-size:13px;color:rgba(255,255,255,.6);padding:7px 0;border-bottom:0.5px solid rgba(255,255,255,.05);line-height:1.4;}
+.tip-item:last-child{border-bottom:none;}
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid rgba(255,255,255,.05);}
+.lb-row:last-child{border-bottom:none;}
+.rank{font-size:16px;font-weight:800;width:26px;text-align:center;}
+.rank.gold{color:#ef9f27;}.rank.silver{color:#b4b2a9;}.rank.bronze{color:#f0997b;}.rank.other{color:rgba(255,255,255,.25);}
+.lb-name{font-size:13px;font-weight:700;color:#f0f0f5;}
+.lb-detail{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px;}
+.lb-score{font-size:16px;font-weight:800;color:#afa9ec;}
+.gender-toggle{display:flex;gap:8px;margin-bottom:16px;}
+.gender-btn{flex:1;padding:11px;border-radius:11px;border:0.5px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.4);font-size:14px;font-weight:700;cursor:pointer;min-height:44px;}
+.gender-btn.active{background:rgba(127,119,221,.2);border-color:#7f77dd;color:#afa9ec;}
+.rank-key{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px;}
+.rank-key-item{display:flex;align-items:center;gap:8px;background:#13131f;border-radius:9px;padding:9px 11px;}
+.rk-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.rk-label{font-size:12px;color:rgba(255,255,255,.6);font-weight:600;}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.cat-card{background:#13131f;border:0.5px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 12px;cursor:pointer;text-align:center;min-height:122px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.cat-card:active{border-color:rgba(127,119,221,.5);background:rgba(127,119,221,.07);}
+.cat-icon{font-size:26px;margin-bottom:7px;}
+.cat-name{font-size:14px;font-weight:700;color:#f0f0f5;}
+.cat-sub{font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;}
+.diff{display:inline-block;font-size:10px;padding:3px 9px;border-radius:20px;margin-top:6px;font-weight:700;}
+.d-e{background:rgba(99,153,34,.15);color:#97c459;}.d-m{background:rgba(186,117,23,.15);color:#ef9f27;}.d-h{background:rgba(153,60,29,.15);color:#f0997b;}.d-x{background:rgba(162,45,45,.15);color:#e24b4a;}
+.q-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.q-prog{font-size:12px;color:rgba(255,255,255,.3);font-weight:600;}
+.hearts{display:flex;gap:4px;}
+.heart{font-size:15px;}
+.q-streak{display:flex;align-items:center;gap:4px;font-size:13px;color:#ef9f27;font-weight:700;}
+.q-text{font-size:18px;font-weight:700;color:#f0f0f5;line-height:1.35;margin-bottom:18px;}
+.q-cat-lbl{font-size:11px;color:rgba(255,255,255,.3);margin-bottom:13px;font-weight:600;}
+.options{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.opt{background:#13131f;border:2px solid rgba(255,255,255,.09);border-radius:13px;padding:15px 16px;font-size:14px;color:rgba(255,255,255,.75);cursor:pointer;text-align:left;min-height:52px;font-weight:500;line-height:1.3;}
+.opt:active:not(.locked){border-color:rgba(127,119,221,.5);}
+.opt.correct{border-color:#639922;background:rgba(99,153,34,.12);color:#97c459;}
+.opt.wrong{border-color:#a32d2d;background:rgba(162,45,45,.1);color:#f09595;}
+.opt.locked{cursor:default;}
+.fb-box{border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;line-height:1.5;display:none;}
+.fb-box.correct{background:rgba(99,153,34,.1);border:0.5px solid rgba(99,153,34,.3);color:#97c459;}
+.fb-box.wrong{background:rgba(162,45,45,.09);border:0.5px solid rgba(162,45,45,.3);color:#f09595;}
+.fb-title{font-weight:700;margin-bottom:4px;font-size:14px;}
+.next-btn{background:#534ab7;color:#fff;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;width:100%;display:none;min-height:52px;}
+.next-btn.show{display:block;}
+.next-btn:active{background:#7f77dd;}
+.res-card{text-align:center;padding:10px 0;}
+.res-icon{font-size:54px;margin-bottom:12px;}
+.res-title{font-size:24px;font-weight:800;margin-bottom:6px;}
+.res-sub{font-size:13px;color:rgba(255,255,255,.35);margin-bottom:20px;}
+.res-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;}
+.res-stat{background:#13131f;border:0.5px solid rgba(255,255,255,.07);border-radius:13px;padding:14px 8px;}
+.res-stat-val{font-size:24px;font-weight:800;color:#afa9ec;}
+.res-stat-lbl{font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;font-weight:600;}
+.badge-unlock{background:rgba(239,159,39,.1);border:0.5px solid rgba(186,117,23,.3);border-radius:13px;padding:13px 15px;display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.b-icon{font-size:30px;}
+.b-title{font-size:13px;font-weight:700;color:#ef9f27;}
+.b-sub{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px;}
+.quiz-sub{display:none;}.quiz-sub.active{display:block;}
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="topbar">
+  <div class="logo">Lift<span>Rank</span></div>
+  <div class="top-right">
+    <div class="xp-pill" id="xp-display">240 XP</div>
+    <div class="streak-pill"><div class="dot"></div>12d</div>
+  </div>
+</div>
+<div class="content">
+
+  <div class="page active" id="page-dashboard">
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-lbl">Streak</div><div class="stat-val pu">12</div><div class="stat-sub">days in a row</div></div>
+      <div class="stat-card"><div class="stat-lbl">This week</div><div class="stat-val gr">4</div><div class="stat-sub">workouts</div></div>
+      <div class="stat-card"><div class="stat-lbl">PRs</div><div class="stat-val am">3</div><div class="stat-sub">this week</div></div>
+      <div class="stat-card"><div class="stat-lbl">Volume</div><div class="stat-val">18.4k</div><div class="stat-sub">lbs this week</div></div>
+    </div>
+    <div class="sec-title">Muscles trained this week</div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="pb-row"><div class="pb-top"><span class="pb-name">Chest</span><span class="pb-val">3 sets</span></div><div class="pb-wrap"><div class="pb-fill" style="width:75%"></div></div></div>
+      <div class="pb-row"><div class="pb-top"><span class="pb-name">Back</span><span class="pb-val">4 sets</span></div><div class="pb-wrap"><div class="pb-fill" style="width:90%"></div></div></div>
+      <div class="pb-row"><div class="pb-top"><span class="pb-name">Legs</span><span class="pb-val">2 sets</span></div><div class="pb-wrap"><div class="pb-fill gr" style="width:40%"></div></div></div>
+      <div class="pb-row" style="margin-bottom:0"><div class="pb-top"><span class="pb-name">Shoulders</span><span class="pb-val">1 set</span></div><div class="pb-wrap"><div class="pb-fill am" style="width:20%"></div></div></div>
+    </div>
+    <div class="sec-title">Next workout</div>
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
+      <div><div style="font-size:15px;font-weight:700;">Push Day A</div><div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;">Chest · Shoulders · Triceps</div></div>
+      <button class="btn-pri" style="width:auto;padding:11px 18px;margin-top:0;font-size:13px;" onclick="showPage('log')">Start →</button>
+    </div>
+  </div>
+
+  <div class="page" id="page-log">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="font-size:18px;font-weight:800;">Push Day A</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.25);font-weight:600;">0:14:32</div>
+    </div>
+    <div class="card" style="margin-bottom:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+        <div><div class="ex-name">Bench Press</div><div class="ex-muscle">Chest · Primary</div></div>
+        <span class="pr-badge">New PR 🏆</span>
+      </div>
+      <div class="overload-box">💡 Last time: 185 lb × 8. Try 185 × 9 or 190 × 7 today.</div>
+      <div style="margin-top:12px;">
+        <div class="set-grid" style="margin-bottom:3px;"><div></div><div class="set-lbl">Prev</div><div class="set-lbl">Weight</div><div class="set-lbl">Reps</div></div>
+        <div class="set-grid"><div class="set-num">1</div><div style="font-size:11px;color:rgba(255,255,255,.25);text-align:center;">185×8</div><input class="set-inp" value="185" type="number"/><input class="set-inp" value="9" type="number"/></div>
+        <div class="set-grid"><div class="set-num">2</div><div style="font-size:11px;color:rgba(255,255,255,.25);text-align:center;">185×8</div><input class="set-inp" value="185" type="number"/><input class="set-inp" value="8" type="number"/></div>
+        <div class="set-grid"><div class="set-num">3</div><div style="font-size:11px;color:rgba(255,255,255,.25);text-align:center;">185×7</div><input class="set-inp" placeholder="lb" type="number"/><input class="set-inp" placeholder="reps" type="number"/></div>
+      </div>
+      <button class="btn-out">+ Add set</button>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+        <div><div class="ex-name">Overhead Press</div><div class="ex-muscle">Shoulders · Primary</div></div>
+        <span class="badge-sm b-t">On track</span>
+      </div>
+      <div class="overload-box">💡 Matched last week. Push for one more rep.</div>
+      <div style="margin-top:12px;">
+        <div class="set-grid" style="margin-bottom:3px;"><div></div><div class="set-lbl">Prev</div><div class="set-lbl">Weight</div><div class="set-lbl">Reps</div></div>
+        <div class="set-grid"><div class="set-num">1</div><div style="font-size:11px;color:rgba(255,255,255,.25);text-align:center;">115×8</div><input class="set-inp" value="115" type="number"/><input class="set-inp" value="8" type="number"/></div>
+        <div class="set-grid"><div class="set-num">2</div><div style="font-size:11px;color:rgba(255,255,255,.25);text-align:center;">115×7</div><input class="set-inp" value="115" type="number"/><input class="set-inp" placeholder="reps" type="number"/></div>
+      </div>
+      <button class="btn-out">+ Add set</button>
+    </div>
+    <button class="btn-pri" style="margin-top:14px;">✓ Finish Workout</button>
+  </div>
+
+  <div class="page" id="page-exercises">
+    <input class="search-inp" placeholder="🔍  Search 500+ exercises..." oninput="filterEx(this.value)"/>
+    <div id="ex-list"></div>
+  </div>
+
+  <div class="page" id="page-friends">
+    <div class="sec-title" style="margin-bottom:12px;">Friend activity</div>
+    <div class="card">
+      <div class="friend-row"><div class="avatar-sm av-t">JK</div><div style="flex:1"><div class="fr-name">Jake K.<span class="pr-badge">PR 🏆</span></div><div class="fr-act">New squat PR — 365 lb</div></div><div class="fr-time">2m</div></div>
+      <div class="react-row"><button class="rbtn active" onclick="this.classList.toggle('active')">🔥 3</button><button class="rbtn" onclick="this.classList.toggle('active')">💪 1</button><button class="rbtn" onclick="this.classList.toggle('active')">👏</button></div>
+    </div>
+    <div class="card">
+      <div class="friend-row"><div class="avatar-sm av-a">MS</div><div style="flex:1"><div class="fr-name">Mason S.</div><div class="fr-act">Completed Push Day — 5 exercises, 42 min</div></div><div class="fr-time">1h</div></div>
+      <div class="react-row"><button class="rbtn" onclick="this.classList.toggle('active')">🔥</button><button class="rbtn" onclick="this.classList.toggle('active')">💪</button><button class="rbtn active" onclick="this.classList.toggle('active')">👏 2</button></div>
+    </div>
+    <div class="card">
+      <div class="friend-row"><div class="avatar-sm av-c">AR</div><div style="flex:1"><div class="fr-name">Alex R.</div><div class="fr-act">Increased bench by 10 lb this month 📈</div></div><div class="fr-time">3h</div></div>
+      <div class="react-row"><button class="rbtn" onclick="this.classList.toggle('active')">🔥 5</button><button class="rbtn" onclick="this.classList.toggle('active')">💪 2</button><button class="rbtn" onclick="this.classList.toggle('active')">👏</button></div>
+    </div>
+    <div class="card">
+      <div class="friend-row"><div class="avatar-sm av-p">ZM</div><div style="flex:1"><div class="fr-name">Zoe M.</div><div class="fr-act">7-day streak unlocked 🔥</div></div><div class="fr-time">Yesterday</div></div>
+      <div class="react-row"><button class="rbtn" onclick="this.classList.toggle('active')">🔥 8</button><button class="rbtn" onclick="this.classList.toggle('active')">💪</button><button class="rbtn" onclick="this.classList.toggle('active')">👏 4</button></div>
+    </div>
+    <div class="sec-title" style="margin-top:6px;margin-bottom:12px;">Weekly leaderboard</div>
+    <div class="card">
+      <div style="display:flex;gap:7px;margin-bottom:12px;">
+        <button class="rbtn active" style="flex:1;padding:8px;" onclick="setLb('workouts',this)">Workouts</button>
+        <button class="rbtn" style="flex:1;padding:8px;" onclick="setLb('prs',this)">PRs</button>
+        <button class="rbtn" style="flex:1;padding:8px;" onclick="setLb('streak',this)">Streak</button>
+      </div>
+      <div id="lb-workouts">
+        <div class="lb-row"><div class="rank gold">1</div><div class="avatar-sm av-t" style="width:30px;height:30px;font-size:11px;">JK</div><div style="flex:1"><div class="lb-name">Jake K.</div><div class="lb-detail">6 day streak</div></div><div class="lb-score">6</div></div>
+        <div class="lb-row"><div class="rank silver">2</div><div class="avatar-sm av-p" style="width:30px;height:30px;font-size:11px;">You</div><div style="flex:1"><div class="lb-name">You</div><div class="lb-detail">12 day streak 🔥</div></div><div class="lb-score">4</div></div>
+        <div class="lb-row"><div class="rank bronze">3</div><div class="avatar-sm av-a" style="width:30px;height:30px;font-size:11px;">MS</div><div style="flex:1"><div class="lb-name">Mason S.</div><div class="lb-detail">3 day streak</div></div><div class="lb-score">3</div></div>
+        <div class="lb-row"><div class="rank other">4</div><div class="avatar-sm av-c" style="width:30px;height:30px;font-size:11px;">AR</div><div style="flex:1"><div class="lb-name">Alex R.</div><div class="lb-detail">1 day streak</div></div><div class="lb-score">2</div></div>
+      </div>
+      <div id="lb-prs" style="display:none;">
+        <div class="lb-row"><div class="rank gold">1</div><div class="avatar-sm av-p" style="width:30px;height:30px;font-size:11px;">You</div><div style="flex:1"><div class="lb-name">You</div><div class="lb-detail">Bench, OHP, Curl</div></div><div class="lb-score">3</div></div>
+        <div class="lb-row"><div class="rank silver">2</div><div class="avatar-sm av-t" style="width:30px;height:30px;font-size:11px;">JK</div><div style="flex:1"><div class="lb-name">Jake K.</div><div class="lb-detail">Squat</div></div><div class="lb-score">1</div></div>
+        <div class="lb-row"><div class="rank bronze">3</div><div class="avatar-sm av-c" style="width:30px;height:30px;font-size:11px;">AR</div><div style="flex:1"><div class="lb-name">Alex R.</div><div class="lb-detail">Bench Press</div></div><div class="lb-score">1</div></div>
+      </div>
+      <div id="lb-streak" style="display:none;">
+        <div class="lb-row"><div class="rank gold">1</div><div class="avatar-sm av-p" style="width:30px;height:30px;font-size:11px;">You</div><div style="flex:1"><div class="lb-name">You</div><div class="lb-detail">Personal best!</div></div><div class="lb-score">12</div></div>
+        <div class="lb-row"><div class="rank silver">2</div><div class="avatar-sm av-t" style="width:30px;height:30px;font-size:11px;">JK</div><div style="flex:1"><div class="lb-name">Jake K.</div><div class="lb-detail">On a roll</div></div><div class="lb-score">6</div></div>
+        <div class="lb-row"><div class="rank bronze">3</div><div class="avatar-sm av-a" style="width:30px;height:30px;font-size:11px;">MS</div><div style="flex:1"><div class="lb-name">Mason S.</div><div class="lb-detail">Building up</div></div><div class="lb-score">3</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-profile">
+    <div style="margin-bottom:16px;"><div style="font-size:20px;font-weight:800;">Your Muscle Rank</div><div style="font-size:12px;color:rgba(255,255,255,.35);margin-top:3px;">Based on your lifetime PRs</div></div>
+    <div class="gender-toggle">
+      <button class="gender-btn active" onclick="setGender('male',this)">♂ Male</button>
+      <button class="gender-btn" onclick="setGender('female',this)">♀ Female</button>
+    </div>
+    <div class="sec-title">Rank key</div>
+    <div class="rank-key">
+      <div class="rank-key-item"><div class="rk-dot" style="background:#444;"></div><div class="rk-label">Untrained</div></div>
+      <div class="rank-key-item"><div class="rk-dot" style="background:#4a9eff;"></div><div class="rk-label">Novice</div></div>
+      <div class="rank-key-item"><div class="rk-dot" style="background:#97c459;"></div><div class="rk-label">Intermediate</div></div>
+      <div class="rank-key-item"><div class="rk-dot" style="background:#ef9f27;"></div><div class="rk-label">Advanced</div></div>
+      <div class="rank-key-item" style="grid-column:span 2;"><div class="rk-dot" style="background:#e24b4a;"></div><div class="rk-label">Elite</div></div>
+    </div>
+    <div style="display:flex;gap:20px;justify-content:center;margin-bottom:16px;" id="mannequin-wrap"></div>
+    <div class="sec-title">Muscle breakdown</div>
+    <div id="muscle-breakdown"></div>
+  </div>
+
+  <div class="page" id="page-quiz">
+    <div class="quiz-sub active" id="quiz-home">
+      <div style="margin-bottom:18px;"><div style="font-size:22px;font-weight:800;margin-bottom:4px;">Gym IQ 🧠</div><div style="font-size:13px;color:rgba(255,255,255,.35);">Earn XP. Unlock badges. Beat your friends.</div></div>
+      <div class="cat-grid">
+        <div class="cat-card" onclick="startQ('muscles')"><div class="cat-icon">💪</div><div class="cat-name">Muscle Maps</div><div class="cat-sub">Which muscles do exercises work?</div><div class="diff d-e">Beginner</div></div>
+        <div class="cat-card" onclick="startQ('compounds')"><div class="cat-icon">🏋️</div><div class="cat-name">Big Lifts</div><div class="cat-sub">Compounds & form cues</div><div class="diff d-m">Intermediate</div></div>
+        <div class="cat-card" onclick="startQ('nutrition')"><div class="cat-icon">🥩</div><div class="cat-name">Nutrition</div><div class="cat-sub">Macros, calories & fueling</div><div class="diff d-m">Intermediate</div></div>
+        <div class="cat-card" onclick="startQ('advanced')"><div class="cat-icon">🧠</div><div class="cat-name">Expert Mode</div><div class="cat-sub">Periodization & RPE</div><div class="diff d-x">Expert</div></div>
+        <div class="cat-card" onclick="startQ('anatomy')"><div class="cat-icon">🦴</div><div class="cat-name">Anatomy</div><div class="cat-sub">Joints, tendons & movement</div><div class="diff d-h">Hard</div></div>
+        <div class="cat-card" onclick="startQ('recovery')"><div class="cat-icon">😴</div><div class="cat-name">Recovery</div><div class="cat-sub">Sleep, rest & adaptation</div><div class="diff d-e">Beginner</div></div>
+      </div>
+    </div>
+    <div class="quiz-sub" id="quiz-q">
+      <div class="q-meta">
+        <div class="q-prog" id="q-prog">Q 1 of 5</div>
+        <div class="hearts" id="hearts"></div>
+        <div class="q-streak" id="q-streak" style="display:none;">🔥<span id="streak-num">0</span></div>
+      </div>
+      <div class="q-cat-lbl" id="q-cat-lbl"></div>
+      <div class="q-text" id="q-text"></div>
+      <div class="options" id="options"></div>
+      <div class="fb-box" id="fb-box"><div class="fb-title" id="fb-title"></div><div id="fb-body"></div></div>
+      <button class="next-btn" id="next-btn" onclick="nextQ()">Continue →</button>
+    </div>
+    <div class="quiz-sub" id="quiz-result">
+      <div class="res-card">
+        <div class="res-icon" id="res-icon">🏆</div>
+        <div class="res-title" id="res-title"></div>
+        <div class="res-sub" id="res-sub"></div>
+        <div class="res-stats">
+          <div class="res-stat"><div class="res-stat-val" id="rc">0</div><div class="res-stat-lbl">Correct</div></div>
+          <div class="res-stat"><div class="res-stat-val" id="rx">+0</div><div class="res-stat-lbl">XP earned</div></div>
+          <div class="res-stat"><div class="res-stat-val" id="rs">0</div><div class="res-stat-lbl">Best streak</div></div>
+        </div>
+        <div class="badge-unlock" id="badge-unlock" style="display:none;"><div class="b-icon" id="b-icon"></div><div><div class="b-title" id="b-title"></div><div class="b-sub" id="b-sub"></div></div></div>
+        <button class="next-btn show" onclick="showQHome()">Try another category →</button>
+        <button class="btn-out" style="margin-top:8px;" onclick="replayQ()">Play again</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- content -->
+
+<!-- Exercise Modal -->
+<div class="modal-overlay" id="ex-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-sub" id="modal-sub"></div>
+    <div class="mannequin-wrap" id="modal-mannequin"></div>
+    <div class="muscle-key">
+      <div class="key-title">Muscle key</div>
+      <div class="key-row"><div class="key-dot" style="background:#e24b4a;"></div>Primary muscle</div>
+      <div class="key-row"><div class="key-dot" style="background:#ef9f27;"></div>Secondary muscle</div>
+      <div class="key-row"><div class="key-dot" style="background:#4a9eff;"></div>Stabilizer</div>
+    </div>
+    <div class="info-row" id="modal-info"></div>
+    <div id="modal-tips"></div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <button class="nav-btn active" onclick="showPage('dashboard')" id="nav-dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('log')" id="nav-log">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+    <span>Log</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('exercises')" id="nav-exercises">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 4v16M18 4v16M6 12h12M3 7h3M18 7h3M3 17h3M18 17h3"/></svg>
+    <span>Exercises</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('friends')" id="nav-friends">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    <span>Friends</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('profile')" id="nav-profile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    <span>Profile</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('quiz')" id="nav-quiz">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+    <span>Gym IQ</span>
+  </button>
+</div>
+</div><!-- phone -->
+
+<script>
+const EXERCISES=[
+  {name:'Barbell Bench Press',muscle:'Chest',secondary:'Triceps, Front Delts',type:'Compound',level:'Intermediate',equipment:'Barbell',log:'Total weight',tips:['Keep shoulder blades retracted','Bar should touch lower chest','Drive feet into floor'],primary:['chest'],sec:['triceps','front_delt']},
+  {name:'Dumbbell Bench Press',muscle:'Chest',secondary:'Triceps, Front Delts',type:'Compound',level:'Beginner',equipment:'Dumbbells',log:'Total weight',tips:['Control the descent','Full stretch at bottom','Press in arc motion'],primary:['chest'],sec:['triceps','front_delt']},
+  {name:'Incline Bench Press',muscle:'Upper Chest',secondary:'Front Delts, Triceps',type:'Compound',level:'Intermediate',equipment:'Barbell',log:'Total weight',tips:['Set incline to 30-45°','Keep elbows at 75°','Squeeze chest at top'],primary:['upper_chest'],sec:['front_delt','triceps']},
+  {name:'Cable Fly',muscle:'Chest',secondary:'Front Delts',type:'Isolation',level:'Beginner',equipment:'Cable',log:'Per side',tips:['Slight bend in elbows','Cross hands at peak','Control the negative'],primary:['chest'],sec:['front_delt']},
+  {name:'Push-ups',muscle:'Chest',secondary:'Triceps, Core',type:'Bodyweight',level:'Beginner',equipment:'None',log:'Reps',tips:['Straight line head to heel','Elbows at 45°','Full range of motion'],primary:['chest'],sec:['triceps','core']},
+  {name:'Dips (Chest)',muscle:'Lower Chest',secondary:'Triceps, Front Delts',type:'Compound',level:'Intermediate',equipment:'Dip Bar',log:'BW + weight',tips:['Lean forward for chest','Go below 90° elbow','Add weight when ready'],primary:['lower_chest'],sec:['triceps','front_delt']},
+  {name:'Deadlift',muscle:'Lower Back',secondary:'Glutes, Hamstrings, Traps',type:'Compound',level:'Intermediate',equipment:'Barbell',log:'Total weight',tips:['Bar over mid-foot','Hinge at hips first','Keep chest up'],primary:['lower_back'],sec:['glutes','hamstrings','traps']},
+  {name:'Pull-ups',muscle:'Lats',secondary:'Biceps, Rear Delts',type:'Bodyweight',level:'Intermediate',equipment:'Pull-up Bar',log:'BW + weight',tips:['Full dead hang at bottom','Drive elbows to hips','Cross feet to reduce swing'],primary:['lats'],sec:['biceps','rear_delt']},
+  {name:'Barbell Row',muscle:'Lats',secondary:'Rhomboids, Biceps, Traps',type:'Compound',level:'Intermediate',equipment:'Barbell',log:'Total weight',tips:['Pull to lower chest','Keep back flat','Squeeze shoulder blades'],primary:['lats'],sec:['rhomboids','biceps','traps']},
+  {name:'Lat Pulldown',muscle:'Lats',secondary:'Biceps, Rear Delts',type:'Compound',level:'Beginner',equipment:'Cable',log:'Total weight',tips:['Lean back slightly','Pull to upper chest','Full stretch at top'],primary:['lats'],sec:['biceps','rear_delt']},
+  {name:'Cable Row',muscle:'Lats',secondary:'Rhomboids, Biceps',type:'Compound',level:'Beginner',equipment:'Cable',log:'Total weight',tips:['Keep elbows close','Squeeze at contraction','Control return'],primary:['lats'],sec:['rhomboids','biceps']},
+  {name:'Face Pull',muscle:'Rear Delts',secondary:'Rhomboids, Rotator Cuff',type:'Isolation',level:'Beginner',equipment:'Cable',log:'Total weight',tips:['Pull to face height','External rotate at end','Use light weight, high reps'],primary:['rear_delt'],sec:['rhomboids']},
+  {name:'Overhead Press',muscle:'Front Delts',secondary:'Side Delts, Triceps',type:'Compound',level:'Intermediate',equipment:'Barbell',log:'Total weight',tips:['Keep core braced','Bar travels straight','Lockout at top'],primary:['front_delt'],sec:['side_delt','triceps']},
+  {name:'Dumbbell Shoulder Press',muscle:'Front Delts',secondary:'Side Delts, Triceps',type:'Compound',level:'Beginner',equipment:'Dumbbells',log:'Per side',tips:['Neutral grip option','Full range of motion','Controlled descent'],primary:['front_delt'],sec:['side_delt','triceps']},
+  {name:'Lateral Raise',muscle:'Side Delts',secondary:'Traps',type:'Isolation',level:'Beginner',equipment:'Dumbbells',log:'Per side',tips:['Lead with elbows','Slight forward tilt','Stop at shoulder height'],primary:['side_delt'],sec:['traps']},
+  {name:'Arnold Press',muscle:'Front Delts',secondary:'Side Delts, Triceps',type:'Compound',level:'Intermediate',equipment:'Dumbbells',log:'Per side',tips:['Rotate wrists during press','Full rotation for activation','Control the negative'],primary:['front_delt'],sec:['side_delt']},
+  {name:'Barbell Squat',muscle:'Quadriceps',secondary:'Glutes, Hamstrings',type:'Compound',level:'Intermediate',equipment:'Barbell',log:'Total weight',tips:['Break parallel for full depth','Knees track toes','Chest up throughout'],primary:['quads'],sec:['glutes','hamstrings']},
+  {name:'Romanian Deadlift',muscle:'Hamstrings',secondary:'Glutes, Lower Back',type:'Compound',level:'Intermediate',equipment:'Barbell',log:'Total weight',tips:['Hip hinge not squat','Feel stretch in hamstrings','Keep bar close to legs'],primary:['hamstrings'],sec:['glutes','lower_back']},
+  {name:'Leg Press',muscle:'Quadriceps',secondary:'Glutes, Hamstrings',type:'Compound',level:'Beginner',equipment:'Machine',log:'Total weight',tips:['Feet shoulder width','Full range of motion','Do not lock knees'],primary:['quads'],sec:['glutes','hamstrings']},
+  {name:'Bulgarian Split Squat',muscle:'Quadriceps',secondary:'Glutes, Hamstrings',type:'Compound',level:'Advanced',equipment:'Dumbbells',log:'Per leg',tips:['Rear foot elevated 12-18"','Front knee tracks toes','Upright torso for quads'],primary:['quads'],sec:['glutes']},
+  {name:'Leg Curl',muscle:'Hamstrings',secondary:'Glutes',type:'Isolation',level:'Beginner',equipment:'Machine',log:'Total weight',tips:['Full range of motion','Squeeze at top','Control the negative'],primary:['hamstrings'],sec:['glutes']},
+  {name:'Leg Extension',muscle:'Quadriceps',secondary:'',type:'Isolation',level:'Beginner',equipment:'Machine',log:'Total weight',tips:['Pause at full extension','Control the negative','Avoid locking out hard'],primary:['quads'],sec:[]},
+  {name:'Hip Thrust',muscle:'Glutes',secondary:'Hamstrings, Lower Back',type:'Compound',level:'Beginner',equipment:'Barbell',log:'Total weight',tips:['Drive through heels','Squeeze glutes at top','Chin tucked'],primary:['glutes'],sec:['hamstrings']},
+  {name:'Calf Raise',muscle:'Calves',secondary:'',type:'Isolation',level:'Beginner',equipment:'Machine',log:'Total weight',tips:['Full stretch at bottom','Pause at top','Slow negative'],primary:['calves'],sec:[]},
+  {name:'Barbell Curl',muscle:'Biceps',secondary:'Brachialis',type:'Isolation',level:'Beginner',equipment:'Barbell',log:'Total weight',tips:['Elbows stay at sides','Full extension at bottom','Squeeze at top'],primary:['biceps'],sec:['brachialis']},
+  {name:'Dumbbell Curl',muscle:'Biceps',secondary:'Brachialis',type:'Isolation',level:'Beginner',equipment:'Dumbbells',log:'Per arm',tips:['Supinate wrist at top','Control the negative'],primary:['biceps'],sec:['brachialis']},
+  {name:'Hammer Curl',muscle:'Brachialis',secondary:'Biceps, Forearms',type:'Isolation',level:'Beginner',equipment:'Dumbbells',log:'Per arm',tips:['Neutral grip throughout','Elbows stay at sides','Builds arm thickness'],primary:['brachialis'],sec:['biceps']},
+  {name:'Tricep Pushdown',muscle:'Triceps',secondary:'',type:'Isolation',level:'Beginner',equipment:'Cable',log:'Total weight',tips:['Elbows pinned to sides','Full extension at bottom','Control return'],primary:['triceps'],sec:[]},
+  {name:'Skull Crusher',muscle:'Triceps',secondary:'',type:'Isolation',level:'Intermediate',equipment:'Barbell',log:'Total weight',tips:['Lower to forehead or behind','Elbows should not flare','Use EZ bar for comfort'],primary:['triceps'],sec:[]},
+  {name:'Close Grip Bench',muscle:'Triceps',secondary:'Chest, Front Delts',type:'Compound',level:'Intermediate',equipment:'Barbell',log:'Total weight',tips:['Hands shoulder width','Elbows close to body','Full range of motion'],primary:['triceps'],sec:['chest']},
+  {name:'Plank',muscle:'Core',secondary:'Shoulders, Glutes',type:'Bodyweight',level:'Beginner',equipment:'None',log:'Time (seconds)',tips:['Straight line head to heel','Brace like taking a punch','Breathe normally'],primary:['core'],sec:['shoulders']},
+  {name:'Cable Crunch',muscle:'Core',secondary:'Hip Flexors',type:'Isolation',level:'Beginner',equipment:'Cable',log:'Total weight',tips:['Round spine to crunch','Pull with abs not arms','Full stretch at top'],primary:['core'],sec:[]},
+  {name:'Hanging Leg Raise',muscle:'Core',secondary:'Hip Flexors',type:'Bodyweight',level:'Intermediate',equipment:'Pull-up Bar',log:'Reps',tips:['Control the swing','Raise to 90° or higher','Posterior pelvic tilt at top'],primary:['core'],sec:['hip_flexors']},
+];
+
+function getC(m,primary,sec){
+  if(primary.includes(m))return'#e24b4a';
+  if(sec.includes(m))return'#ef9f27';
+  return'rgba(255,255,255,0.1)';
+}
+function drawM(view,primary,sec){
+  const c=m=>getC(m,primary,sec);
+  if(view==='front')return`<svg width="90" height="190" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="50" cy="16" rx="12" ry="14" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    <rect x="44" y="28" width="12" height="8" rx="2" fill="rgba(255,255,255,0.12)"/>
+    <path d="M28 38 Q50 34 72 38 L70 52 Q50 56 30 52 Z" fill="${c('upper_chest')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <ellipse cx="38" cy="58" rx="10" ry="8" fill="${c('chest')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <ellipse cx="62" cy="58" rx="10" ry="8" fill="${c('chest')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <path d="M30 64 Q50 68 70 64 L68 72 Q50 76 32 72 Z" fill="${c('lower_chest')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <ellipse cx="22" cy="46" rx="8" ry="9" fill="${c('front_delt')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <ellipse cx="78" cy="46" rx="8" ry="9" fill="${c('front_delt')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <ellipse cx="14" cy="52" rx="6" ry="7" fill="${c('side_delt')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <ellipse cx="86" cy="52" rx="6" ry="7" fill="${c('side_delt')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <rect x="8" y="58" width="11" height="20" rx="5" fill="${c('biceps')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <rect x="81" y="58" width="11" height="20" rx="5" fill="${c('biceps')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <rect x="8" y="76" width="11" height="12" rx="4" fill="${c('brachialis')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <rect x="81" y="76" width="11" height="12" rx="4" fill="${c('brachialis')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <rect x="39" y="73" width="8" height="7" rx="2" fill="${c('core')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <rect x="53" y="73" width="8" height="7" rx="2" fill="${c('core')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <rect x="39" y="82" width="8" height="7" rx="2" fill="${c('core')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <rect x="53" y="82" width="8" height="7" rx="2" fill="${c('core')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <rect x="39" y="91" width="8" height="7" rx="2" fill="${c('core')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <rect x="53" y="91" width="8" height="7" rx="2" fill="${c('core')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <path d="M30 108 Q36 106 42 108 L44 140 Q36 144 30 140 Z" fill="${c('quads')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <path d="M58 108 Q64 106 70 108 L70 140 Q64 144 56 140 Z" fill="${c('quads')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <path d="M30 144 Q36 142 42 144 L41 170 Q36 174 31 170 Z" fill="${c('calves')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <path d="M58 144 Q64 142 70 144 L69 170 Q64 174 59 170 Z" fill="${c('calves')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <ellipse cx="36" cy="176" rx="8" ry="5" fill="rgba(255,255,255,.1)"/>
+    <ellipse cx="64" cy="176" rx="8" ry="5" fill="rgba(255,255,255,.1)"/>
+    <rect x="6" y="56" width="8" height="18" rx="4" fill="${c('triceps')}" stroke="rgba(0,0,0,.15)" stroke-width=".5" opacity=".7"/>
+    <rect x="86" y="56" width="8" height="18" rx="4" fill="${c('triceps')}" stroke="rgba(0,0,0,.15)" stroke-width=".5" opacity=".7"/>
+  </svg>`;
+  return`<svg width="90" height="190" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="50" cy="16" rx="12" ry="14" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    <rect x="44" y="28" width="12" height="8" rx="2" fill="rgba(255,255,255,0.12)"/>
+    <path d="M28 36 Q50 30 72 36 L68 48 Q50 44 32 48 Z" fill="${c('traps')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <ellipse cx="22" cy="46" rx="8" ry="9" fill="${c('rear_delt')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <ellipse cx="78" cy="46" rx="8" ry="9" fill="${c('rear_delt')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <path d="M22 52 Q26 58 30 72 L38 72 Q36 58 30 50 Z" fill="${c('lats')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <path d="M78 52 Q74 58 70 72 L62 72 Q64 58 70 50 Z" fill="${c('lats')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <path d="M34 48 Q50 44 66 48 L64 64 Q50 68 36 64 Z" fill="${c('rhomboids')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <path d="M36 66 Q50 62 64 66 L62 90 Q50 94 38 90 Z" fill="${c('lower_back')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <rect x="8" y="56" width="12" height="22" rx="5" fill="${c('triceps')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <rect x="80" y="56" width="12" height="22" rx="5" fill="${c('triceps')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <ellipse cx="40" cy="100" rx="12" ry="12" fill="${c('glutes')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <ellipse cx="60" cy="100" rx="12" ry="12" fill="${c('glutes')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <path d="M30 110 Q36 108 44 110 L44 142 Q36 146 30 142 Z" fill="${c('hamstrings')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <path d="M56 110 Q64 108 70 110 L70 142 Q64 146 56 142 Z" fill="${c('hamstrings')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <path d="M30 144 Q36 142 44 144 L42 172 Q36 176 31 172 Z" fill="${c('calves')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <path d="M56 144 Q64 142 70 144 L68 172 Q64 176 57 172 Z" fill="${c('calves')}" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>
+    <ellipse cx="36" cy="178" rx="8" ry="5" fill="rgba(255,255,255,.1)"/>
+    <ellipse cx="64" cy="178" rx="8" ry="5" fill="rgba(255,255,255,.1)"/>
+  </svg>`;
+}
+
+const RC={untrained:'#444',novice:'#4a9eff',intermediate:'#97c459',advanced:'#ef9f27',elite:'#e24b4a'};
+const UR={chest:'advanced',lats:'intermediate',quads:'advanced',hamstrings:'novice',glutes:'intermediate',triceps:'intermediate',biceps:'advanced',core:'novice',traps:'intermediate',lower_back:'intermediate',calves:'untrained',front_delt:'intermediate',side_delt:'novice',rear_delt:'novice',upper_chest:'advanced',lower_chest:'intermediate',rhomboids:'intermediate',brachialis:'novice'};
+function rC(m){return RC[UR[m]||'untrained'];}
+function drawProfile(view){
+  const iF=view==='front';
+  const c=m=>rC(m);
+  if(iF)return`<svg width="100" height="210" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="50" cy="16" rx="12" ry="14" fill="rgba(255,255,255,0.15)"/>
+    <rect x="44" y="28" width="12" height="8" rx="2" fill="rgba(255,255,255,0.12)"/>
+    <path d="M28 38 Q50 34 72 38 L70 52 Q50 56 30 52 Z" fill="${c('upper_chest')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <ellipse cx="38" cy="58" rx="10" ry="8" fill="${c('chest')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <ellipse cx="62" cy="58" rx="10" ry="8" fill="${c('chest')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <path d="M30 64 Q50 68 70 64 L68 72 Q50 76 32 72 Z" fill="${c('lower_chest')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <ellipse cx="22" cy="46" rx="8" ry="9" fill="${c('front_delt')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <ellipse cx="78" cy="46" rx="8" ry="9" fill="${c('front_delt')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <ellipse cx="14" cy="52" rx="6" ry="7" fill="${c('side_delt')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <ellipse cx="86" cy="52" rx="6" ry="7" fill="${c('side_delt')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <rect x="8" y="58" width="11" height="20" rx="5" fill="${c('biceps')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <rect x="81" y="58" width="11" height="20" rx="5" fill="${c('biceps')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <rect x="8" y="76" width="11" height="12" rx="4" fill="${c('brachialis')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <rect x="81" y="76" width="11" height="12" rx="4" fill="${c('brachialis')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <rect x="39" y="73" width="8" height="7" rx="2" fill="${c('core')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <rect x="53" y="73" width="8" height="7" rx="2" fill="${c('core')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <rect x="39" y="82" width="8" height="7" rx="2" fill="${c('core')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <rect x="53" y="82" width="8" height="7" rx="2" fill="${c('core')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <rect x="39" y="91" width="8" height="7" rx="2" fill="${c('core')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <rect x="53" y="91" width="8" height="7" rx="2" fill="${c('core')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <path d="M30 108 Q36 106 42 108 L44 140 Q36 144 30 140 Z" fill="${c('quads')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <path d="M58 108 Q64 106 70 108 L70 140 Q64 144 56 140 Z" fill="${c('quads')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <path d="M30 144 Q36 142 42 144 L41 170 Q36 174 31 170 Z" fill="${c('calves')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <path d="M58 144 Q64 142 70 144 L69 170 Q64 174 59 170 Z" fill="${c('calves')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <ellipse cx="36" cy="176" rx="8" ry="5" fill="rgba(255,255,255,.1)"/>
+    <ellipse cx="64" cy="176" rx="8" ry="5" fill="rgba(255,255,255,.1)"/>
+  </svg>`;
+  return`<svg width="100" height="210" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="50" cy="16" rx="12" ry="14" fill="rgba(255,255,255,0.15)"/>
+    <rect x="44" y="28" width="12" height="8" rx="2" fill="rgba(255,255,255,0.12)"/>
+    <path d="M28 36 Q50 30 72 36 L68 48 Q50 44 32 48 Z" fill="${c('traps')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <ellipse cx="22" cy="46" rx="8" ry="9" fill="${c('rear_delt')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <ellipse cx="78" cy="46" rx="8" ry="9" fill="${c('rear_delt')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <path d="M22 52 Q26 58 30 72 L38 72 Q36 58 30 50 Z" fill="${c('lats')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <path d="M78 52 Q74 58 70 72 L62 72 Q64 58 70 50 Z" fill="${c('lats')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <path d="M34 48 Q50 44 66 48 L64 64 Q50 68 36 64 Z" fill="${c('rhomboids')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <path d="M36 66 Q50 62 64 66 L62 90 Q50 94 38 90 Z" fill="${c('lower_back')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <rect x="8" y="56" width="12" height="22" rx="5" fill="${c('triceps')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <rect x="80" y="56" width="12" height="22" rx="5" fill="${c('triceps')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <ellipse cx="40" cy="100" rx="12" ry="12" fill="${c('glutes')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <ellipse cx="60" cy="100" rx="12" ry="12" fill="${c('glutes')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <path d="M30 110 Q36 108 44 110 L44 142 Q36 146 30 142 Z" fill="${c('hamstrings')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <path d="M56 110 Q64 108 70 110 L70 142 Q64 146 56 142 Z" fill="${c('hamstrings')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <path d="M30 144 Q36 142 44 144 L42 172 Q36 176 31 172 Z" fill="${c('calves')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <path d="M56 144 Q64 142 70 144 L68 172 Q64 176 57 172 Z" fill="${c('calves')}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    <ellipse cx="36" cy="178" rx="8" ry="5" fill="rgba(255,255,255,.1)"/>
+    <ellipse cx="64" cy="178" rx="8" ry="5" fill="rgba(255,255,255,.1)"/>
+  </svg>`;
+}
+
+let cG='male';
+function setGender(g,el){cG=g;document.querySelectorAll('.gender-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderProfile();}
+function renderProfile(){
+  document.getElementById('mannequin-wrap').innerHTML=`
+    <div style="text-align:center"><div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;">Front</div>${drawProfile('front')}</div>
+    <div style="text-align:center"><div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;">Back</div>${drawProfile('back')}</div>`;
+  document.getElementById('muscle-breakdown').innerHTML=Object.entries(UR).map(([m,r])=>`
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;margin-bottom:7px;">
+      <div style="font-size:13px;font-weight:600;text-transform:capitalize;">${m.replace(/_/g,' ')}</div>
+      <div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:${RC[r]};"></div><div style="font-size:12px;font-weight:700;color:${RC[r]};text-transform:capitalize;">${r}</div></div>
+    </div>`).join('');
+}
+
+function renderExList(q){
+  const f=q?EXERCISES.filter(e=>e.name.toLowerCase().includes(q.toLowerCase())||e.muscle.toLowerCase().includes(q.toLowerCase())):EXERCISES;
+  document.getElementById('ex-list').innerHTML=f.slice(0,40).map((e,i)=>`
+    <div class="ex-card" onclick="openEx(${EXERCISES.indexOf(e)})">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div><div class="ex-name">${e.name}</div><div class="ex-muscle">${e.muscle}${e.secondary?(' · '+e.secondary):''}</div></div>
+        <span class="badge-sm ${e.type==='Compound'?'b-a':e.type==='Isolation'?'b-p':e.type==='Bodyweight'?'b-t':'b-c'}">${e.type}</span>
+      </div>
+      <div class="ex-stats">
+        <div class="ex-stat"><strong>${e.level}</strong>Level</div>
+        <div class="ex-stat"><strong>${e.equipment}</strong>Equipment</div>
+        <div class="ex-stat"><strong>${e.log}</strong>Log</div>
+      </div>
+    </div>`).join('')||(q?'<div style="text-align:center;color:rgba(255,255,255,.3);padding:40px 0;">No results</div>':'');
+}
+function filterEx(v){renderExList(v);}
+function openEx(i){
+  const e=EXERCISES[i];
+  document.getElementById('modal-title').textContent=e.name;
+  document.getElementById('modal-sub').textContent=`${e.muscle} · ${e.type} · ${e.equipment}`;
+  document.getElementById('modal-mannequin').innerHTML=`
+    <div class="mannequin-container"><div class="mannequin-label">Front</div>${drawM('front',e.primary,e.sec)}</div>
+    <div class="mannequin-container"><div class="mannequin-label">Back</div>${drawM('back',e.primary,e.sec)}</div>`;
+  document.getElementById('modal-info').innerHTML=`
+    <div class="info-chip"><strong>${e.level}</strong>Level</div>
+    <div class="info-chip"><strong>${e.equipment}</strong>Equipment</div>
+    <div class="info-chip"><strong>${e.log}</strong>Log type</div>`;
+  document.getElementById('modal-tips').innerHTML=`
+    <div class="tips-title">Form tips</div>
+    ${e.tips.map(t=>`<div class="tip-item">✓ ${t}</div>`).join('')}
+    ${e.secondary?`<div class="tips-title">Secondary muscles</div><div class="tip-item">${e.secondary}</div>`:''}`;
+  document.getElementById('ex-modal').classList.add('open');
+}
+function closeModal(ev){if(ev.target===document.getElementById('ex-modal'))document.getElementById('ex-modal').classList.remove('open');}
+
+function setLb(tab,el){
+  ['workouts','prs','streak'].forEach(t=>{const e=document.getElementById('lb-'+t);if(e)e.style.display=t===tab?'block':'none';});
+  document.querySelectorAll('#page-friends .rbtn[onclick*="setLb"]').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+const QS={
+  muscles:[
+    {q:"Which muscle is the PRIMARY mover in a barbell squat?",opts:["Hamstrings","Quadriceps","Glutes","Calves"],ans:1,e:"The quadriceps are the primary movers, driving knee extension as you stand up."},
+    {q:"A pull-up primarily targets which muscle?",opts:["Biceps","Rear deltoid","Latissimus dorsi","Rhomboids"],ans:2,e:"The lats are the primary mover, pulling the elbows down toward the hips."},
+    {q:"The bench press primarily works which muscle?",opts:["Shoulders","Triceps","Pectorals","Biceps"],ans:2,e:"The pectorals are the primary mover. Triceps and front delts assist."},
+    {q:"Which exercise BEST isolates the lateral deltoid?",opts:["Overhead press","Lateral raise","Upright row","Front raise"],ans:1,e:"Lateral raises isolate the lateral head of the deltoid, creating shoulder width."},
+    {q:"Romanian deadlift primarily targets which muscles?",opts:["Quadriceps","Hip flexors","Hamstrings and glutes","Lower back only"],ans:2,e:"The RDL is a hip hinge that emphasizes hamstrings and glutes through a stretch-based loading pattern."},
+    {q:"Hip thrusts primarily target which muscle?",opts:["Quads","Core","Glutes","Lower back"],ans:2,e:"Hip thrusts are the gold standard glute exercise, maximizing glute activation at full hip extension."},
+    {q:"Face pulls primarily target which muscle?",opts:["Traps","Rear delts and rhomboids","Front delts","Lats"],ans:1,e:"Face pulls target the rear delts and rhomboids, helping balance shoulder health."},
+    {q:"Skull crushers primarily target which muscle?",opts:["Biceps","Chest","Triceps","Shoulders"],ans:2,e:"Skull crushers are a tricep isolation exercise that loads the long head heavily."},
+    {q:"Hammer curls primarily target which muscle?",opts:["Biceps short head","Brachialis and brachioradialis","Rear delts","Forearm extensors"],ans:1,e:"Hammer curls target the brachialis and brachioradialis, adding arm thickness."},
+    {q:"Close grip bench press primarily targets which muscle?",opts:["Chest","Biceps","Triceps","Lats"],ans:2,e:"Narrowing the grip shifts emphasis from the chest to the triceps."},
+  ],
+  compounds:[
+    {q:"What are the 3 classic powerlifting lifts?",opts:["Squat, deadlift, overhead press","Squat, bench press, deadlift","Deadlift, bench press, row","Clean, jerk, snatch"],ans:1,e:"The big three powerlifting lifts are squat, bench press, and deadlift."},
+    {q:"In a conventional deadlift, where should the bar be at setup?",opts:["1 foot in front of shins","Over mid-foot, close to shins","Behind your heels","Under your nose"],ans:1,e:"The bar should be over mid-foot (~1 inch from shins) to keep the center of mass balanced."},
+    {q:"What does 'breaking parallel' mean in a squat?",opts:["Knees going past toes","Hips dropping below knee level","Bar bending under load","Heels leaving the floor"],ans:1,e:"Breaking parallel means the hip crease drops BELOW the top of the knee."},
+    {q:"Progressive overload means:",opts:["Lifting same weight every session","Gradually increasing training stress over time","Training more days only","Only adding weight, never reps"],ans:1,e:"Progressive overload means systematically increasing volume, intensity, or difficulty over time."},
+    {q:"What is a '1 rep max' (1RM)?",opts:["Most reps with light weight","Maximum weight for one rep","Your average workout weight","Warmup weight"],ans:1,e:"A 1RM is the maximum weight you can lift for a single repetition with good form."},
+    {q:"Which phase of a lift is called the 'eccentric' phase?",opts:["The lifting phase","The hold phase","The lowering phase","The setup phase"],ans:2,e:"The eccentric phase is when the muscle lengthens under load — lowering the bar in a bench press."},
+    {q:"What is a 'compound' movement?",opts:["Uses machines only","Works one muscle","Works multiple joints and muscles","Done with cables only"],ans:2,e:"Compound movements involve multiple joints and recruit many muscle groups simultaneously."},
+    {q:"What does 'time under tension' (TUT) mean?",opts:["How long your workout takes","Total time your muscle is under load","The rest time between sets","How long you hold a stretch"],ans:1,e:"Time under tension is the total duration a muscle is loaded during a set."},
+  ],
+  nutrition:[
+    {q:"How many calories are in 1 gram of protein?",opts:["4 calories","7 calories","9 calories","2 calories"],ans:0,e:"Protein = 4 cal/g. Fat = 9 cal/g. Carbs = 4 cal/g. Alcohol = 7 cal/g."},
+    {q:"How many calories are in 1 gram of fat?",opts:["4 calories","6 calories","9 calories","11 calories"],ans:2,e:"Fat is the most calorie-dense macronutrient at 9 calories per gram."},
+    {q:"General protein recommendation for muscle building?",opts:["0.3g per lb","0.7–1g per lb","2g per lb","5g per lb"],ans:1,e:"Research supports 0.7–1g per pound of bodyweight for muscle protein synthesis."},
+    {q:"What is a 'caloric surplus'?",opts:["Fewer calories than you burn","Same calories as you burn","More calories than you burn","Tracking macros precisely"],ans:2,e:"A caloric surplus means consuming more energy than you expend — required for muscle growth."},
+    {q:"Which macronutrient fuels high-intensity lifting?",opts:["Fat","Protein","Carbohydrates","Water"],ans:2,e:"Carbohydrates (stored as glycogen) are the primary fuel for high-intensity exercise."},
+    {q:"What does 'TDEE' stand for?",opts:["Total Daily Exercise Energy","Total Daily Energy Expenditure","Training Deficit Eating Estimate","Target Daily Exercise Evaluation"],ans:1,e:"TDEE = Total Daily Energy Expenditure — total calories your body burns in a day."},
+    {q:"Creatine primarily benefits which type of exercise?",opts:["Long-distance running","High-intensity lifting","Flexibility training","Low-intensity cardio"],ans:1,e:"Creatine replenishes ATP most effectively during short, intense efforts like heavy lifting."},
+    {q:"What is leucine and why does it matter?",opts:["A type of fat","An amino acid that triggers muscle protein synthesis","A carbohydrate","A hormone"],ans:1,e:"Leucine is an essential amino acid that acts as a primary signal to trigger muscle protein synthesis."},
+  ],
+  advanced:[
+    {q:"What is 'RPE 8' in training?",opts:["8 reps per set","80% of 1RM","Could do 2 more reps before failure","Rest 8 minutes between sets"],ans:2,e:"RPE 8 = could do ~2 more reps before failure. RPE 10 = absolute max effort."},
+    {q:"What is hypertrophy training focused on?",opts:["Max strength","Muscle size growth","Cardio endurance","Flexibility"],ans:1,e:"Hypertrophy training aims to increase muscle cross-sectional area (size)."},
+    {q:"Which rep range is most associated with strength?",opts:["1–5 reps","8–12 reps","15–20 reps","25–30 reps"],ans:0,e:"Low rep ranges (1–5) with high loads produce neural adaptations and maximal strength."},
+    {q:"What is periodization in training?",opts:["Rest time between sets","Planned variation in training stress over time","Counting macros weekly","Order of exercises"],ans:1,e:"Periodization = systematic variation of volume, intensity, frequency to optimize progress."},
+    {q:"What is 'deloading'?",opts:["Stopping training permanently","A planned period of reduced training intensity","Training heavier than normal","Switching to cardio only"],ans:1,e:"A deload is a planned reduction in training stress to allow recovery and break through plateaus."},
+    {q:"What does 'RIR' stand for?",opts:["Reps in Reserve","Rest Interval Requirement","Rate of Intensity Regulation","Repetition Index Ratio"],ans:0,e:"RIR = Reps In Reserve — how many more reps you could do before failure."},
+    {q:"What is a 'superset'?",opts:["A heavier-than-usual set","Two exercises back-to-back with no rest","A set of 20+ reps","The final set of a workout"],ans:1,e:"A superset involves performing two exercises consecutively without rest."},
+  ],
+  anatomy:[
+    {q:"What is the largest muscle in the human body?",opts:["Quadriceps","Latissimus dorsi","Gluteus maximus","Hamstrings"],ans:2,e:"The gluteus maximus is the largest muscle by volume."},
+    {q:"What type of joint is the knee?",opts:["Ball and socket","Hinge joint","Pivot joint","Saddle joint"],ans:1,e:"The knee is a hinge joint, allowing primarily flexion and extension."},
+    {q:"What connects muscle to bone?",opts:["Ligaments","Cartilage","Tendons","Fascia"],ans:2,e:"Tendons connect muscle to bone. Ligaments connect bone to bone."},
+    {q:"What connects bone to bone?",opts:["Tendons","Cartilage","Ligaments","Fascia"],ans:2,e:"Ligaments connect bones to each other and stabilize joints."},
+    {q:"What is the rotator cuff?",opts:["Four muscles stabilizing the shoulder","The muscle around the knee","The hip flexor group","Lower back muscles"],ans:0,e:"The rotator cuff is four muscles (SITS) that stabilize the shoulder joint."},
+    {q:"What is 'flexion' of a joint?",opts:["Straightening a joint","Bending a joint, decreasing the angle","Rotating a joint","Moving limb away from body"],ans:1,e:"Flexion decreases the angle between bones — like bending your elbow or knee."},
+    {q:"What makes up the 'posterior chain'?",opts:["Chest, biceps, abs","Glutes, hamstrings, lower back, calves","Quads, hip flexors, core","Traps, lats, biceps"],ans:1,e:"The posterior chain includes all muscles on the back side of the body."},
+  ],
+  recovery:[
+    {q:"How many hours of sleep for optimal muscle recovery?",opts:["4–5 hours","6–7 hours","7–9 hours","10–12 hours"],ans:2,e:"Research consistently supports 7–9 hours of sleep for optimal recovery and muscle repair."},
+    {q:"What hormone is released during deep sleep that aids muscle growth?",opts:["Cortisol","Insulin","Growth hormone","Adrenaline"],ans:2,e:"Human Growth Hormone (HGH) is released during slow-wave sleep and plays a key role in tissue repair."},
+    {q:"What does DOMS stand for?",opts:["Daily Onset Muscle Strength","Delayed Onset Muscle Soreness","Direct Output Muscle Signal","Dynamic Output Muscle Strain"],ans:1,e:"DOMS = Delayed Onset Muscle Soreness — the soreness felt 24–72 hours after intense exercise."},
+    {q:"What is 'active recovery'?",opts:["Taking a full rest day","Light movement to promote blood flow and reduce soreness","A type of stretching routine","Sleeping more than usual"],ans:1,e:"Active recovery involves low-intensity movement to increase blood flow and reduce soreness."},
+    {q:"How long do muscles generally need between intense sessions?",opts:["12 hours","24 hours","48–72 hours","1 week"],ans:2,e:"Most muscles need 48–72 hours of recovery between intense training sessions."},
+    {q:"What is cortisol's role in training?",opts:["Builds muscle directly","A stress hormone that can impair recovery if chronically elevated","Improves sleep quality","Has no effect on muscle"],ans:1,e:"Cortisol is a stress hormone — in acute bursts it's normal, but chronically elevated it impairs recovery."},
+  ]
+};
+
+let qC='',qA=[],qI=0,qCo=0,qH=3,qSt=0,qBs=0,qXP=240,qAns=false,qLC='';
+function startQ(cat){
+  qC=cat;qLC=cat;
+  qA=[...QS[cat]].sort(()=>Math.random()-.5).slice(0,5);
+  qI=0;qCo=0;qH=3;qSt=0;qBs=0;qAns=false;
+  showQS('quiz-q');renderQ();
+}
+function renderQ(){
+  const q=qA[qI];
+  const labs={muscles:'💪 Muscle Maps',compounds:'🏋️ Big Lifts',nutrition:'🥩 Nutrition',advanced:'🧠 Expert',anatomy:'🦴 Anatomy',recovery:'😴 Recovery'};
+  document.getElementById('q-prog').textContent='Q '+(qI+1)+' of '+qA.length;
+  document.getElementById('q-cat-lbl').textContent=labs[qC]||'';
+  document.getElementById('q-text').textContent=q.q;
+  const opts=document.getElementById('options');opts.innerHTML='';
+  q.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='opt';b.textContent=o;b.onclick=()=>selA(i);opts.appendChild(b);});
+  const hEl=document.getElementById('hearts');hEl.innerHTML='';
+  for(let i=0;i<3;i++){const s=document.createElement('span');s.className='heart';s.textContent=i<qH?'❤️':'🖤';hEl.appendChild(s);}
+  document.getElementById('fb-box').style.display='none';
+  document.getElementById('fb-box').className='fb-box';
+  document.getElementById('next-btn').classList.remove('show');
+  const se=document.getElementById('q-streak');
+  qSt>=2?(se.style.display='flex',document.getElementById('streak-num').textContent=qSt):se.style.display='none';
+  qAns=false;
+}
+function selA(i){
+  if(qAns)return;qAns=true;
+  const q=qA[qI];
+  const btns=document.getElementById('options').querySelectorAll('.opt');
+  btns.forEach(b=>b.classList.add('locked'));
+  const xg=qC==='advanced'?30:qC==='anatomy'?25:qC==='nutrition'?20:15;
+  const fb=document.getElementById('fb-box');
+  if(i===q.ans){
+    btns[i].classList.add('correct');qCo++;qSt++;if(qSt>qBs)qBs=qSt;
+    qXP+=xg;document.getElementById('xp-display').textContent=qXP+' XP';
+    fb.className='fb-box correct';
+    document.getElementById('fb-title').textContent=qSt>=3?'🔥 '+qSt+' in a row!':'✓ Correct!';
+    document.getElementById('fb-body').textContent=q.e;
+    if(qSt>=2){document.getElementById('q-streak').style.display='flex';document.getElementById('streak-num').textContent=qSt;}
+  } else {
+    btns[i].classList.add('wrong');btns[q.ans].classList.add('correct');
+    qSt=0;qH=Math.max(0,qH-1);
+    fb.className='fb-box wrong';
+    document.getElementById('fb-title').textContent='✗ Not quite';
+    document.getElementById('fb-body').textContent=q.e;
+    document.getElementById('q-streak').style.display='none';
+    const hEl=document.getElementById('hearts');hEl.innerHTML='';
+    for(let j=0;j<3;j++){const s=document.createElement('span');s.className='heart';s.textContent=j<qH?'❤️':'🖤';hEl.appendChild(s);}
+  }
+  fb.style.display='block';
+  const nb=document.getElementById('next-btn');nb.classList.add('show');
+  nb.textContent=qI<qA.length-1?'Continue →':'See results →';
+}
+function nextQ(){qI++;if(qI>=qA.length||qH===0){showRes();return;}renderQ();}
+function showRes(){
+  showQS('quiz-result');
+  const pct=Math.round((qCo/qA.length)*100);
+  const icons=['😅','💪','🔥','🏆','👑'];
+  const titles=['Keep grinding!','Solid effort!','Nice work!','Crushing it!','Gym genius!'];
+  const idx=Math.min(4,Math.floor(pct/20));
+  document.getElementById('res-icon').textContent=icons[idx];
+  document.getElementById('res-title').textContent=titles[idx];
+  document.getElementById('res-sub').textContent=qCo+' of '+qA.length+' correct · '+pct+'% accuracy';
+  document.getElementById('rc').textContent=qCo;
+  document.getElementById('rx').textContent='+'+(qCo*(qC==='advanced'?30:qC==='anatomy'?25:20));
+  document.getElementById('rs').textContent=qBs;
+  const bu=document.getElementById('badge-unlock');
+  if(qCo===qA.length){
+    bu.style.display='flex';
+    const bs={muscles:['🧬','Anatomy Expert'],compounds:['🏋️','Iron Scholar'],nutrition:['🥗','Macro Master'],advanced:['🧠','Gym Genius'],anatomy:['🦴','Body Expert'],recovery:['😴','Recovery Pro']};
+    const b=bs[qC];
+    document.getElementById('b-icon').textContent=b[0];
+    document.getElementById('b-title').textContent=b[1]+' badge unlocked!';
+    document.getElementById('b-sub').textContent='Perfect score — share with friends!';
+  } else {bu.style.display='none';}
+}
+function showQHome(){showQS('quiz-home');}
+function replayQ(){startQ(qLC);}
+function showQS(id){document.querySelectorAll('.quiz-sub').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('nav-'+id).classList.add('active');
+  if(id==='profile')renderProfile();
+  if(id==='exercises')renderExList('');
+}
+
+// init
+renderExList('');
+renderProfile();
+</script>
+</body>
+</html>
